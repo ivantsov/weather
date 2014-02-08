@@ -1,0 +1,74 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Weather</title>
+	<meta charset="utf-8">
+
+	<link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+<body>
+	<div class="wrapper">
+        <form action="update/" method="post">
+            {% csrf_token %}
+            <button type="submit">Обновить данные</button>
+        </form>
+		<h1>Погода от яндекса</h1>
+		<table border="1" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Город</th>
+                    <th>Температура</th>
+                    <th>Давление</th>
+                    <th>Влажность</th>
+                    <th>Дата обновления</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for weather in yandex_weather %}
+                <tr>
+                    <td>{{ weather.city_name }}</td>
+                    <td>{{ weather.temperature }}</td>
+                    <td>{{ weather.pressure }}</td>
+                    <td>{{ weather.humidity }}</td>
+                    <td>{{ weather.last_update }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td>Нет данных, нажмите кнопку выше, чтобы обновить их.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+		</table>
+
+        <h1>Погода от yahoo</h1>
+		<table border="1" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Город</th>
+                    <th>Температура</th>
+                    <th>Давление</th>
+                    <th>Влажность</th>
+                    <th>Дата обновления</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for weather in yahoo_weather %}
+                <tr>
+                    <td>{{ weather.city_name }}</td>
+                    <td>{{ weather.temperature }}</td>
+                    <td>{{ weather.pressure }}</td>
+                    <td>{{ weather.humidity }}</td>
+                    <td>{{ weather.last_update }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td>Нет данных, нажмите кнопку выше, чтобы обновить их.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+		</table>
+	</div>
+</body>
+</html>

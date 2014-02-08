@@ -1,0 +1,18 @@
+body {
+    width: 1020px;
+    margin: 0 auto;
+    font-family: Helvetica;
+}
+
+.wrapper {
+    margin-top: 200px;
+}
+
+table td, th {
+    text-align: center;
+    padding: 5px;
+}
+
+form button {
+    height: 50px;
+}
