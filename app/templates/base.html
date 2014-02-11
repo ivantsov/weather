@@ -10,8 +10,9 @@
 </head>
 <body>
 	<div class="wrapper">
-		<h1>Погода от яндекса</h1>
-		<table border="1" cellspacing="0">
+        {% for service in weather %}
+        <h1>Погода от {{ service.name }}</h1>
+        <table border="1" cellspacing="0">
             <thead>
                 <tr>
                     <th>Город</th>
@@ -22,49 +23,22 @@
                 </tr>
             </thead>
             <tbody>
-                {% for weather in yandex_weather %}
+                {% for city in service.city_list %}
                 <tr>
-                    <td>{{ weather.city_name }}</td>
-                    <td>{{ weather.temperature }}</td>
-                    <td>{{ weather.pressure }}</td>
-                    <td>{{ weather.humidity }}</td>
-                    <td>{{ weather.last_update }}</td>
+                    <td>{{ city.city_name }}</td>
+                    <td>{{ city.temperature }}</td>
+                    <td>{{ city.pressure }}</td>
+                    <td>{{ city.humidity }}</td>
+                    <td>{{ city.last_update }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td>Нет данных, нажмите кнопку выше, чтобы обновить их.</td>
+                    <td>На данный момент данных нет, подождите их обновления.</td>
                 </tr>
                 {% endfor %}
             </tbody>
 		</table>
-
-        <h1>Погода от yahoo</h1>
-		<table border="1" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Город</th>
-                    <th>Температура</th>
-                    <th>Давление</th>
-                    <th>Влажность</th>
-                    <th>Дата обновления</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for weather in yahoo_weather %}
-                <tr>
-                    <td>{{ weather.city_name }}</td>
-                    <td>{{ weather.temperature }}</td>
-                    <td>{{ weather.pressure }}</td>
-                    <td>{{ weather.humidity }}</td>
-                    <td>{{ weather.last_update }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td>Нет данных, нажмите кнопку выше, чтобы обновить их.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-		</table>
+        {% endfor %}
 	</div>
 </body>
 </html>

@@ -1,6 +1,11 @@
 from django.db import models
 
 
+#chelyabinsk, moscow, petesburg
+YANDEX_CITY_LIST = [28642, 27612, 26063]
+YAHOO_CITY_LIST = ['RSXX0024', 'RSXX0063', 'RSXX0091']
+
+
 class Weather(models.Model):
 	city_name = models.CharField(max_length=100)
 	temperature = models.IntegerField()
