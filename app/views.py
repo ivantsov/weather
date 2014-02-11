@@ -8,81 +8,66 @@ from xml.dom import minidom
 from models import YandexWeather, YahooWeather
 
 #chelyabinsk, moscow, petesburg
-yandex_city_list = [28642, 27612, 26063]
-yahoo_city_list = ['RSXX0024', 'RSXX0063', 'RSXX0091']
+YANDEX_CITY_LIST = [28642, 27612, 26063]
+YAHOO_CITY_LIST = ['RSXX0024', 'RSXX0063', 'RSXX0091']
+
+__metaclass__ = type
+
+class WeatherParser:
+	def __init__(self, url, city_list):
+		self.city_list = city_list
+		self.url = url
+		self.dom = {}
+		self.weather = []
+
+	def loadXml(self):
+		for city in self.city_list:
+			self.dom[city] = minidom.parseString(requests.get(self.url % city).content)
+
+	def getWeather(self):
+		self.loadXml()
+		self.parse()
+
+		return self.weather
 
 
-#service1 - yandex, service2 - yahoo
-# def getWeather(service, city_list):
-# 	weather = []
-#
-# 	for city in city_list:
-# 		if service == 1:
-# 			url = u'http://export.yandex.ru/weather-ng/forecasts/%s.xml' % city
-# 		else:
-# 			url = u'http://weather.yahooapis.com/forecastrss?p=%s&u=c' % city
-#
-# 		dom = minidom.parseString(requests.get(url).content)
-#
-# 		if service == 1:
-# 			city_weather = {
-# 				u'id': city,
-# 				u'name': dom.getElementsByTagName(u'forecast')[0].getAttribute(u'city'),
-# 				u'temperature': dom.getElementsByTagName(u'temperature')[0].firstChild.nodeValue,
-# 				u'pressure': dom.getElementsByTagName(u'pressure')[0].firstChild.nodeValue,
-# 				u'humidity': dom.getElementsByTagName(u'humidity')[0].firstChild.nodeValue
-# 			}
-# 		else:
-# 			city_weather = {
-# 				u'id': city,
-# 				u'name': dom.getElementsByTagName(u'yweather:location')[0].getAttribute(u'city'),
-# 				u'temperature': dom.getElementsByTagName(u'yweather:condition')[0].getAttribute(u'temp'),
-# 				u'pressure': int(float(dom.getElementsByTagName(u'yweather:atmosphere')[0].getAttribute(u'pressure')) * 0.75),	#convert from US to EU measure of pressure
-# 				u'humidity': dom.getElementsByTagName(u'yweather:atmosphere')[0].getAttribute(u'humidity')
-# 			}
-#
-# 		weather.append(city_weather)
-#
-# 	return weather
+class YandexWeatherParser(WeatherParser):
+	def __init__(self, url, city_list):
+		super(YandexWeatherParser, self).__init__(url, city_list)
 
-# def getYandexWeather():
-# 	weather = []
+	def parse(self):
+		for city in self.city_list:
+			parse_data = {
+				u'id': city,
+				u'name': self.dom[city].getElementsByTagName(u'forecast')[0].getAttribute(u'city'),
+				u'temperature': self.dom[city].getElementsByTagName(u'temperature')[0].firstChild.nodeValue,
+				u'pressure': self.dom[city].getElementsByTagName(u'pressure')[0].firstChild.nodeValue,
+				u'humidity': self.dom[city].getElementsByTagName(u'humidity')[0].firstChild.nodeValue
+			}
+
+			self.weather.append(parse_data)
+
+
+class YahooWeatherParser(WeatherParser):
+	def __init__(self, url, city_list):
+		super(YahooWeatherParser, self).__init__(url, city_list)
+
+	def parse(self):
+		for city in self.city_list:
+			parse_data = {
+				u'id': city,
+				u'name': self.dom[city].getElementsByTagName(u'yweather:location')[0].getAttribute(u'city'),
+				u'temperature': self.dom[city].getElementsByTagName(u'yweather:condition')[0].getAttribute(u'temp'),
+				u'pressure': int(float(self.dom[city].getElementsByTagName(u'yweather:atmosphere')[0].getAttribute(u'pressure')) * 0.75),	#convert from US to EU measure of pressure
+				u'humidity': self.dom[city].getElementsByTagName(u'yweather:atmosphere')[0].getAttribute(u'humidity')
+			}
+
+			self.weather.append(parse_data)
+
+# def getWeather(request):
+# 	yandexWeatherParser = YandexWeatherParser(u'http://export.yandex.ru/weather-ng/forecasts/%s.xml', YANDEX_CITY_LIST)
 #
-# 	for city in yandex_city_list:
-# 		r = requests.get(u'http://export.yandex.ru/weather-ng/forecasts/%s.xml' % city)
-# 		dom = minidom.parseString(r.content)
-#
-# 		city_weather = {
-# 			u'id': city,
-# 			u'name': dom.getElementsByTagName(u'forecast')[0].getAttribute(u'city'),
-# 			u'temperature': dom.getElementsByTagName(u'temperature')[0].firstChild.nodeValue,
-# 			u'pressure': dom.getElementsByTagName(u'pressure')[0].firstChild.nodeValue,
-# 			u'humidity': dom.getElementsByTagName(u'humidity')[0].firstChild.nodeValue
-# 		}
-#
-# 		weather.append(city_weather)
-#
-# 	return weather
-#
-#
-# def getYahooWeather():
-# 	weather = []
-#
-# 	for city in yahoo_city_list:
-# 		r = requests.get(u'http://weather.yahooapis.com/forecastrss?p=%s&u=c' % city)
-# 		dom = minidom.parseString(r.content)
-#
-# 		city_weather = {
-# 			u'id': city,
-# 			u'name': dom.getElementsByTagName(u'yweather:location')[0].getAttribute(u'city'),
-# 			u'temperature': dom.getElementsByTagName(u'yweather:condition')[0].getAttribute(u'temp'),
-# 			u'pressure': int(float(dom.getElementsByTagName(u'yweather:atmosphere')[0].getAttribute(u'pressure')) * 0.75),
-# 			u'humidity': dom.getElementsByTagName(u'yweather:atmosphere')[0].getAttribute(u'humidity')
-# 		}
-#
-# 		weather.append(city_weather)
-#
-# 	return weather
+# 	print yandexWeatherParser.getWeather()
 
 # def updateWeather(request):
 # 	if request.method == 'POST':
@@ -121,10 +106,10 @@ def index(request):
 	yahoo_weather = []
 
 	try:
-		for city in yandex_city_list:
+		for city in YANDEX_CITY_LIST:
 			yandex_weather.append(YandexWeather.objects.filter(city_id=city).order_by('-pk')[0])
 
-		for city in yahoo_city_list:
+		for city in YAHOO_CITY_LIST:
 			yahoo_weather.append(YahooWeather.objects.filter(city_id=city).order_by('-pk')[0])
 	except IndexError:
 		print 'Empty Database'
