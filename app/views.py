@@ -5,7 +5,7 @@ from django.shortcuts import render
 from models import YandexWeather, YahooWeather, YANDEX_CITY_LIST, YAHOO_CITY_LIST
 
 def index(request):
-	yandex_weather = {'name': u'Яндекс', 'city_list': []}
+	yandex_weather = {'name': 'Яндекс', 'city_list': []}
 	yahoo_weather = {'name': u'Yahoo', 'city_list': []}
 
 	try:
@@ -19,4 +19,4 @@ def index(request):
 
 	weather = (yandex_weather, yahoo_weather)
 
-	return render(request, u'base.html', {u'weather': weather})
+	return render(request, 'base.html', {'weather': weather})
