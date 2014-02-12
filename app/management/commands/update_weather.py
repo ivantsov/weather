@@ -18,17 +18,25 @@ class WeatherParser:
 
 	def loadXml(self):
 		for city in self.city_list:
-			self.xml[city] = requests.get(self.url % city).content
+			r = requests.get(self.url % city)
+
+			if r.status_code != 200:
+				raise RuntimeWarning(u'Can not load data from service')
+
+			self.xml[city] = r.content
 
 	def getWeather(self):
-		self.loadXml()
+		try:
+			self.loadXml()
+		except RuntimeWarning as e:
+			print e
 
 		try:
 			self.parse()
 		except ExpatError as e:
-			print 'Parse error: %s' % e
-		except IndexError as e:
-			print 'Data for parsing is empty: %s' % e
+			print u'Parse error: %s' % e
+		except (IndexError, KeyError) as e:
+			print u'Data for parsing is empty %s' % e
 
 		return self.weather
 
@@ -73,7 +81,7 @@ class YahooWeatherParser(WeatherParser):
 
 class Command(BaseCommand):
 	args = ''
-	help = 'Get new weather data and add that into database'
+	help = u'Get new weather data and add that into database'
 
 	def handle(self, *args, **options):
 		yandex_wp = YandexWeatherParser(u'http://export.yandex.ru/weather-ng/forecasts/%s.xml', YANDEX_CITY_LIST)
@@ -81,11 +89,11 @@ class Command(BaseCommand):
 
 		for city in yandex_weather:
 			w = YandexWeather(
-				city_id = city['id'],
-				city_name = city['name'],
-				temperature = city['temperature'],
-				pressure = city['pressure'],
-				humidity = city['humidity']
+				city_id = city[u'id'],
+				city_name = city[u'name'],
+				temperature = city[u'temperature'],
+				pressure = city[u'pressure'],
+				humidity = city[u'humidity']
 			)
 
 			w.save()
@@ -95,11 +103,11 @@ class Command(BaseCommand):
 
 		for city in yahoo_weather:
 			w = YahooWeather(
-				city_id = city['id'],
-				city_name = city['name'],
-				temperature = city['temperature'],
-				pressure = city['pressure'],
-				humidity = city['humidity']
+				city_id = city[u'id'],
+				city_name = city[u'name'],
+				temperature = city[u'temperature'],
+				pressure = city[u'pressure'],
+				humidity = city[u'humidity']
 			)
 
 			w.save()
